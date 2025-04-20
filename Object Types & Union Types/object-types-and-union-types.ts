@@ -98,3 +98,66 @@ function formatValue(value: string | number) {
     return value.toFixed(2);
   }
 }
+// 2. Array Type Guards with Array.isArray()
+function process(data: string | string[]) {
+  if (Array.isArray(data)) {
+    // TypeScript knows data is string[] here
+    return data.join(", ");
+  } else {
+    // TypeScript knows data is string here
+    return data.trim();
+  }
+}
+// 3. Property Checks
+// Union of different object types
+type Circle = { kind: "circle"; radius: number };
+type Square = { kind: "square"; sideLength: number };
+
+function calculateArea(shape: Circle | Square) {
+  if (shape.kind === "circle") {
+    // TypeScript knows shape is Circle here
+    return Math.PI * shape.radius * shape.radius;
+  } else {
+    // TypeScript knows shape is Square here
+    return shape.sideLength * shape.sideLength;
+  }
+}
+// 4. Using the in operator
+type Fish = { swim: () => void };
+type Bird = { fly: () => void };
+
+function move(animal: Fish | Bird) {
+  if ("swim" in animal) {
+    // TypeScript knows animal is Fish here
+    animal.swim();
+  } else {
+    // TypeScript knows animal is Bird here
+    animal.fly();
+  }
+}
+// Union Types with Common Properties
+// If all types in a union share properties, you can use those without narrowing:
+
+// Discriminated unions
+// A common pattern is to include a property that distinguishes between union members:
+type ValidationSuccess = {
+  success: true;
+  value: string;
+};
+
+type ValidationError = {
+  success: false;
+  errorMessage: string;
+};
+
+type ValidationResult = ValidationSuccess | ValidationError;
+
+function handleResult(result: ValidationResult) {
+  if (result.success) {
+    // TypeScript knows it's ValidationSuccess
+    console.log(`Validated: ${result.value}`);
+  } else {
+    // TypeScript knows it's ValidationError
+    console.log(`Error: ${result.errorMessage}`);
+  }
+}
