@@ -35,7 +35,7 @@ function describeUser(user: User): string {
     case "viewer":
       return `Viewer ${user.readOnly}`;
     default:
-      return "N/A";
+      return assertNever(user);
   }
 }
 
@@ -64,6 +64,8 @@ function renderApiResponse<T>(res: ApiResponse<T>): string {
       return `Result: ${res.data}`;
     case "error":
       return `Error: ${res.message}`;
+    default:
+      return assertNever(res);
   }
 }
 // Test
@@ -88,6 +90,11 @@ type Shape =
   | {
       kind: "square";
       sideLength: number;
+    }
+  | {
+      kind: "triangle";
+      base: number;
+      height: number;
     };
 
 function getArea(shape: Shape) {
@@ -98,9 +105,21 @@ function getArea(shape: Shape) {
       return shape.sideLength ** 2;
     case "rectangle":
       return shape.width * shape.height;
+    case "triangle":
+      return (1 / 2) * shape.base * shape.height;
+    /**What’s happening here?
+		You're saying:
+		"Yo TypeScript, I’ve handled all valid shapes. So if anything slips through here — that’s a bug. Fail me at compile time!"
+		💥 That’s exhaustiveness checking. The power move that makes TypeScript go full strict mode 🧠⚔️ */
+    default:
+      return assertNever(shape);
   }
 }
 console.log(
   getArea({ kind: "rectangle", width: 4, height: 5 })
   // → 20
 );
+
+function assertNever(x: never): never {
+  throw new Error(`Unhandled case: ${JSON.stringify(x)}`);
+}
