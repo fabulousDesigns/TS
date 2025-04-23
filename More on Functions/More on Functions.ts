@@ -18,15 +18,53 @@ function greeter2(fn: GreetFunction) {
 // Call signatures
 //In JavaScript, functions can have properties in addition to being callable. However, the function type expression syntax doesn’t allow for declaring properties. If we want to describe something callable with properties, we can write a call signature in an object type:
 
-type DescribableFunction = {
-  description: string;
-  (someArg: number): boolean
+type GreetingFunction = {
+  (name: string): string; // Call signature
+  description: string;    // Additional property
+};
+
+const greet: GreetingFunction = (name: string) => {
+  return `Hello, ${name}!`;
+};
+
+greet.description = "A function to greet users";
+
+console.log(greet("Alice"));          
+console.log(greet.description);     
+/**GreetingFunction defines a callable object that takes a string and returns a string.
+The greet function implements this call signature and includes an additional description property. */
+// ! Calculator Using Call Signature
+type Calculator = {
+  (a: number, b:number): number; // call signature
+  operation: string;
 }
-function doSomething(fn: DescribableFunction) {
-  console.log(fn.description + "returned" + fn(6)); 
+
+const add:Calculator = (a: number, b: number) => a + b
+add.operation = "Addition"
+const multiply: Calculator = (a: number, b: number) => a * b;
+multiply.operation = "Multiplication";
+
+console.log(`${add.operation}: ${add(5, 3)}`);        
+console.log(`${multiply.operation}: ${multiply(5, 3)}`); 
+//Calculator defines a callable object that takes two number parameters and returns a number.
+// 
+
+/**Best Practices for Using TypeScript Call Signatures
+Clearly Define Parameter and Return Types: Ensure all call signatures specify explicit parameter and return types for better type safety.
+Include Descriptive Properties: Add properties that provide context or metadata about the callable object to enhance code readability.
+Use Consistent Naming Conventions: Adopt clear and consistent naming for callable objects and their properties to improve maintainability. */
+
+// construct signatures
+// JavaScript functions can also be invoked with the new operator. TypeScript refers to these as constructors because they usually create a new object. You can write a construct signature by adding the new keyword in front of a call signature:
+type SomeConstructor = {
+  new (s: string): SomeObject;
+};
+function fn(ctor: SomeConstructor) {
+  return new ctor("hello");
 }
-function myFunc(someArg: number){
-  return someArg > 3
+// Some objects, like JavaScript’s Date object, can be called with or without new. You can combine call and construct signatures in the same type arbitrarily:
+
+interface CallorConstruct {
+  (n?: number): string;
+  new (s: string): Date;
 }
-myFunc.description = "default description";
-doSomething(myFunc)
