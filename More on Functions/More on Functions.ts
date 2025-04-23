@@ -64,7 +64,25 @@ function fn(ctor: SomeConstructor) {
 }
 // Some objects, like JavaScript’s Date object, can be called with or without new. You can combine call and construct signatures in the same type arbitrarily:
 
-interface CallorConstruct {
+interface CallOrConstruct {
   (n?: number): string;
   new (s: string): Date;
 }
+ 
+function fn(ctor: CallOrConstruct) {
+  // Passing an argument of type `number` to `ctor` matches it against
+  // the first definition in the `CallOrConstruct` interface.
+  console.log(ctor(10));
+               
+(parameter) ctor: CallOrConstruct
+(n?: number) => string
+ 
+  // Similarly, passing an argument of type `string` to `ctor` matches it
+  // against the second definition in the `CallOrConstruct` interface.
+  console.log(new ctor("10"));
+                   
+(parameter) ctor: CallOrConstruct
+new (s: string) => Date
+}
+ 
+fn(Date);
