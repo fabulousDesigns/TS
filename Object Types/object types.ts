@@ -100,3 +100,77 @@ writablePerson.age++; // ✅ Updates also reflect in readonlyPerson
 console.log(readonlyPerson.age); // 43
 /**🚨 Even though readonlyPerson looks frozen, it’s not — because it's just a view into the same object.
 This is called aliasing — readonly is a type-level constraint, not a runtime freeze. */
+// ! 📚 What are Index Signatures?
+// They’re how you tell TypeScript:
+// “I don’t know the exact property names, but I know the type of values those properties will hold.”
+// basic syntax
+interface StringArray {
+  [index: number]: string;
+}
+/**🧠 This says:
+Any time someone accesses this object with a number like obj[0], it must return a string.
+✅ Use-case: Arrays, Maps, Dictionaries, Record-style objects. */
+// 🔍 Example in Action
+const myArray: StringArray = getStringArray();
+const secondItem = myArray[1]; // ✅ typed as string
+/**🧬 What types can be indexers?
+Only these are allowed as key types:
+string
+number
+symbol
+template string patterns (e.g. ${number}-id)
+Unions of the above (e.g. string | number) */
+// ⚠️ Watch Out: Index Signatures Apply to All Props
+interface NumberDictionary {
+  [index: string]: number;
+  length: number; // ✅
+  name: string; // ❌ Error
+}
+
+//🎯 What are Excess Property Checks?
+// When you create an object literal and immediately assign it to a type, TypeScript checks for extra properties that don’t exist in that type.
+interface SquareConfig {
+  color?: string;
+  width?: number;
+}
+createSquare({ colour: "red", width: 100 }); // ❌ Error: 'colour' not in SquareConfig
+//🧠 Why?
+// Because object literals are treated as exactly typed when used inline — TypeScript assumes you might have made a typo.
+
+// ✅ Why It’s Good
+// Let’s be real:
+
+{
+  colour: "red";
+} // looks fine in JS
+// But in TS:
+
+{
+  colour: "red";
+} // probably meant "color"
+// So TypeScript helps you catch typos early instead of silently ignoring them like JS does.
+
+// 🛠️ 3 Ways to Bypass or Handle the Check (with Pros and Cons)
+// 🔸 1. Type Assertion
+createSquare({ width: 100, opacity: 0.5 } as SquareConfig); // ✅ compiles
+// 🔸 2. Index Signature (best for known-but-flexible shapes)
+interface SquareConfig {
+  color?: string;
+  width?: number;
+  [propName: string]: unknown;
+}
+// ✅ Now createSquare({ colour: "red", width: 100 }) is legal
+// ⚠️ You lose strictness — any property is allowed, so no typo protection.
+// 🔍 Use this only if you actually want to support dynamic props, like option bags.
+
+// 🔸 3. Assign Object to Variable First
+const squareOptions = { colour: "red", width: 100 };
+createSquare(squareOptions); // ✅ compiles
+//*✅ Works because excess property checks only happen for inline object literals
+// ⚠️ Can lead to subtle bugs if you're actually passing invalid data.
+
+// ⚠️ This Won’t Work:
+
+const squareOptions = { colour: "red" };
+createSquare(squareOptions);  // ❌ Error: no overlap with SquareConfig
+// Why? Because colour is not a known property, and no overlap like width to soften the check.
