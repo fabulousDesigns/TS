@@ -174,3 +174,4 @@ createSquare(squareOptions); // ✅ compiles
 const squareOptions = { colour: "red" };
 createSquare(squareOptions);  // ❌ Error: no overlap with SquareConfig
 // Why? Because colour is not a known property, and no overlap like width to soften the check.
+
