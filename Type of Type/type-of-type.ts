@@ -51,3 +51,45 @@ type Bad = typeof getUser().name; // ❌ Not allowed
 // From variable	let n = 5; type T = typeof n;	number
 // From function return	type T = ReturnType<typeof fn>	whatever fn returns
 // Invalid usage	ReturnType<fn> (no typeof)	❌ Error – "value used as type"
+/*✅ What are Indexed Access Types?
+They allow you to extract the type of a property from another type using bracket notation:*/
+type Person = { age: number; name: string; alive: boolean };
+type Age = Person["age"]; // number ✅
+// 🔁 You can index with:
+// Single property
+// Union of properties
+// keyof keyword
+// Custom alias types
+type I1 = Person["age" | "name"];         // number | string
+type I2 = Person[keyof Person];          // number | string | boolean
+type AliveOrName = "alive" | "name";
+type I3 = Person[AliveOrName];           // string | boolean
+// ❌ Indexing a Non-Existent Key:
+type Bad = Person["alve"]; // ❌ Error: 'alve' doesn't exist on Person
+// 📦 Real-World Pattern: Extract Array Element Type
+const MyArray = [
+    { name: "Alice", age: 15 },
+    { name: "Bob", age: 23 },
+    { name: "Eve", age: 38 },
+];
+type Person = typeof MyArray[number];
+// Person: { name: string; age: number }
+type Age = typeof MyArray[number]["age"]; // number
+// 🧠 MyArray[number] = “an element from MyArray”
+// ⚠️ Important Gotcha: Can’t Use const for Indexing
+const key = "age";
+type Age = Person[key]; // ❌ Error — 'key' is a value, not a type
+// ✅ Fix: use a type alias:
+type Key = "age";
+type Age = Person[Key]; // number
+// 🧠 Memory Hook:
+//     If you can say it as a sentence, you can write it as a TypeScript indexed access type.
+// ✍️ “Give me the type of the age in Person” → Person["age"]
+// ⚙️ Summary Table
+
+// Expression	Meaning
+// T["key"]	Get type at key "key"
+//     `T["a"	"b"]`
+// T[keyof T]	Union of all property types in T
+// typeof arr[number]	Type of elements in array
+// typeof arr[number]["prop"]	Type of a specific property in items
